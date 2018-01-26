@@ -1,8 +1,11 @@
 from django import forms
 from rango.models import Page, Category
 
+
+
+
 class CategoryForm(forms.ModelForm):
-    name = forms.CharField(max_length=128,
+    name = forms.CharField(max_length=Category.max_val,
                            help_text="Please enter the category name.")
     views = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
     likes = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
@@ -13,15 +16,11 @@ class CategoryForm(forms.ModelForm):
         fields = ('name',)
 
 class PageForm(forms.ModelForm):
-    title = forms.CharField(max_length=128,
+    title = forms.CharField(max_length=Category.max_val,
                             help_text="Please enter the title of the page.")
     url = forms.URLField(max_length=200,
                          help_text="Please enter the URL of the page.")
     views = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
-
-    class Meta:
-        model = Page
-        exclude = ("category",)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -32,6 +31,11 @@ class PageForm(forms.ModelForm):
             cleaned_data['url'] = url
 
             return cleaned_data
+
+    class Meta:
+        model = Page
+        exclude = ("category",)
+
 
 
     
