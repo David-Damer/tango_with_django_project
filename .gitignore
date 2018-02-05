@@ -1,3 +1,5 @@
 db.sqlite3
 test*
 decorators.py
+.idea
+venv
