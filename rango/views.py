@@ -249,7 +249,7 @@ def visitor_cookie_handler(request):
         # Update the last visit cookie now that we have updated the count
         request.session['last_visit'] = str(datetime.now())
     else:
-        visits = 1
+        
         # Set the last visit cookie
         request.session['last_visit'] = last_visit_cookie
 
