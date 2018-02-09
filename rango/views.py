@@ -238,7 +238,7 @@ def visitor_cookie_handler(request):
     # We use the COOKIES.get() function to obtain the visits cookie. 
     # If the cookie exists, the value returned is casted to an integer. 
     # If the cookie doesn't exist, then the default value of 1 is used. 
-    visits = int(get_server_side_cookie(request, 'visits','1'))
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
 
     last_visit_cookie = get_server_side_cookie(request, 'last_visit', str(datetime.now()))
     last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
