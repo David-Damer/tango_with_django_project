@@ -3,3 +3,5 @@ test*
 decorators.py
 .idea
 venv
+search.key
+*.pyc

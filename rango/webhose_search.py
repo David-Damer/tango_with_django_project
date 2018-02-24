@@ -62,4 +62,3 @@ def run_query(search_terms, size=10):
 
 
 
-    
