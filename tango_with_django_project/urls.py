@@ -19,6 +19,7 @@ from django.conf.urls import include
 from rango import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.core.urlresolvers import reverse
 from registration.backends.simple.views import RegistrationView
 
 
@@ -26,7 +27,7 @@ from registration.backends.simple.views import RegistrationView
 # if successful at logging in
 class MyRegistrationView(RegistrationView):
     def get_success_url(self, user):
-        return '/rango/'
+        return reverse('register_profile')
     """docstring for MyRegistrationView"RegistrationView)def __init__(self, arg):
         super(MyRegistrationView,RegistrationView)__init__()
         self.arg = arg

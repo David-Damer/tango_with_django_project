@@ -1,6 +1,6 @@
 from django.shortcuts import render
 # Import the Category model
-from rango.models import Category, Page
+from rango.models import Category, Page, UserProfile
 from django.http import HttpResponse, HttpResponseRedirect
 from rango.forms import CategoryForm
 from rango.forms import PageForm, UserForm, UserProfileForm
@@ -13,7 +13,6 @@ from rango.webhose_search import run_query
 from django.shortcuts import redirect
 
 
-
 def index(request):
     request.session.set_test_cookie()
     category_list = Category.objects.order_by('-likes')[:5]
@@ -22,7 +21,6 @@ def index(request):
     context_dict = {'categories': category_list, 'pages': page_list}
 
     # Obtain our Response object early so we can add cookie information. 
-    
 
     # Call the helper function to handle the cookies
     visitor_cookie_handler(request)
@@ -33,7 +31,6 @@ def index(request):
     return response
 
 
-
 def about(request):
     if request.session.test_cookie_worked():
         print("TEST COOKIE WORKED!")
@@ -41,7 +38,6 @@ def about(request):
     context_dict = {}
     visitor_cookie_handler(request)
     context_dict['visits'] = request.session['visits']
-
 
     response = render(request, 'rango/about.html', context_dict)
     return response
@@ -52,12 +48,22 @@ def show_category(request, category_name_slug):
 
     try:
         category = Category.objects.get(slug=category_name_slug)
-        pages = Page.objects.filter(category=category)
+        pages = Page.objects.filter(category=category).order_by('-views')
         context_dict['pages'] = pages
         context_dict['category'] = category
     except Category.DoesNotExist:
         context_dict['category'] = None
         context_dict['pages'] = None
+
+    context_dict['query'] = category.name
+    result_list = []
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            result_list = run_query(query)
+            context_dict['query'] = query
+            context_dict['result_list'] = result_list
 
     return render(request, 'rango/category.html', context_dict)
 
@@ -102,116 +108,116 @@ def add_page(request, category_name_slug):
     return render(request, 'rango/add_page.html', context_dict)
 
 
-#def register(request):
-    # A boolean value for telling the template
-    # whether the registration was successful.
-    # Set to False initially. Code changes values to
-    # True when registration succeeds.
-    #registered = False
+# def register(request):
+# A boolean value for telling the template
+# whether the registration was successful.
+# Set to False initially. Code changes values to
+# True when registration succeeds.
+# registered = False
 
-    # If it's a HTTP POST, we're interested in processing form data.
-    #if request.method == 'POST':
-        # Attempt to grab information from the raw form information.
-        # Note that we make use of both UserForm and UserProfileForm
-        #user_form = UserForm(data=request.POST)
-        #profile_form = UserProfileForm(data=request.POST)
+# If it's a HTTP POST, we're interested in processing form data.
+# if request.method == 'POST':
+# Attempt to grab information from the raw form information.
+# Note that we make use of both UserForm and UserProfileForm
+# user_form = UserForm(data=request.POST)
+# profile_form = UserProfileForm(data=request.POST)
 
-        # If the two forms are valid...
-        #if user_form.is_valid() and profile_form.is_valid():
-            # Save the user's data to the database.
-            #user = user_form.save()
+# If the two forms are valid...
+# if user_form.is_valid() and profile_form.is_valid():
+# Save the user's data to the database.
+# user = user_form.save()
 
-            # Now we hash the password with the set_password method
-            # Once hashed, we can update the user object.
-           # user.set_password(user.password)
-            #user.save()
+# Now we hash the password with the set_password method
+# Once hashed, we can update the user object.
+# user.set_password(user.password)
+# user.save()
 
-            # Now sort out the UserProfile instance.
-            # Since we need to set the user attribute ourselves,
-            # we set commit=False. This delays saving the model
-            # until we're ready to avoid integrity problems.
-            #profile = profile_form.save(commit=False)
-            #profile.user = user
+# Now sort out the UserProfile instance.
+# Since we need to set the user attribute ourselves,
+# we set commit=False. This delays saving the model
+# until we're ready to avoid integrity problems.
+# profile = profile_form.save(commit=False)
+# profile.user = user
 
-            # Did the user provide a profile picture?
-            # If so, we neew to get it from the input form and
-            # put it in the UserProfile model
-            #if 'picture' in request.FILES:
-                #profile.picture = request.FILES['picture']
+# Did the user provide a profile picture?
+# If so, we neew to get it from the input form and
+# put it in the UserProfile model
+# if 'picture' in request.FILES:
+# profile.picture = request.FILES['picture']
 
-            # Now we save the UserProfile model instance.
-           # profile.save()
+# Now we save the UserProfile model instance.
+# profile.save()
 
-            # Update our variable to indicate that the template
-            # registration was successful.
-            #registered = True
-       # else:
-            # Invalid form or forms - mistakes or something else?
-            # Print problems to the terminal.
-            #print(user_form.errors, profile_form.errors)
+# Update our variable to indicate that the template
+# registration was successful.
+# registered = True
+# else:
+# Invalid form or forms - mistakes or something else?
+# Print problems to the terminal.
+# print(user_form.errors, profile_form.errors)
 
-    #else:
-        # Not a HTTP POST, so we render our form using two ModelForm instances.
-        # These forms will be blank, ready for user input.
-        #user_form = UserForm()
-        #profile_form = UserProfileForm()
+# else:
+# Not a HTTP POST, so we render our form using two ModelForm instances.
+# These forms will be blank, ready for user input.
+# user_form = UserForm()
+# profile_form = UserProfileForm()
 
-    # Render the template depending on the context.
-   # return render(request, 'rango/register.html', {'user_form': user_form,
-       # 'profile_form': profile_form,
-        #'registered': registered})
+# Render the template depending on the context.
+# return render(request, 'rango/register.html', {'user_form': user_form,
+# 'profile_form': profile_form,
+# 'registered': registered})
 
 
-#def user_login(request):
-    # If the request is a HTTP POST, try to pull out the relevant information.
-    #if request.method == 'POST':
-        # Gather the username and password provided by the user.
-        # This information is obtained from the login form.
-        # We use request.POST.get('<variable>') as opposed
-        # to request.POST['<variable>'], because the
-        # request.POST.get('<variable>') returns None if the
-        # value does not exist, while request.POST['<variable>']
-        # will raise a KeyError exception.
-        #username = request.POST.get('username')
-        #password = request.POST.get('password')
+# def user_login(request):
+# If the request is a HTTP POST, try to pull out the relevant information.
+# if request.method == 'POST':
+# Gather the username and password provided by the user.
+# This information is obtained from the login form.
+# We use request.POST.get('<variable>') as opposed
+# to request.POST['<variable>'], because the
+# request.POST.get('<variable>') returns None if the
+# value does not exist, while request.POST['<variable>']
+# will raise a KeyError exception.
+# username = request.POST.get('username')
+# password = request.POST.get('password')
 
-        # Use Django's machinery to attempt to see if the username/password
-        # combination is valid - a User object is returned if it is.
-        #user = authenticate(username=username, password=password)
+# Use Django's machinery to attempt to see if the username/password
+# combination is valid - a User object is returned if it is.
+# user = authenticate(username=username, password=password)
 
-        # If we have a User object, the details are correct
-        # If None (Python's way of representing the absense of a value),
-        # no user with the matching credentials was found
-        #if user:
-            # Is the account active? It could have been disabled.
-            #if user.is_active:
-                # If the account is valid and active, we can log the user in.
-                # We'll send the user back to the homepage.
-                #login(request, user)
-                #return HttpResponseRedirect(reverse('index'))
-            #else:
-                # An inactive account ws used - no logging in!
-                #return HttpResponse("Your Rango account is disabled.")
-       # else:
-            # Bad login details were provided. So we can't log the user in.
-            #print("Invalid login details supplied: {0}, {1}".format(username, password))
-            #context_dict = {}
-            #usr = User.objects.filter(username=username)
-            #if username == '' or not usr:
-                #context_dict['error'] = 'wronguser'
-            #else:
-                #if password == '':
-                    #context_dict['error'] = 'Please enter your password!'
-                #else:
-                    #context_dict['error'] = 'Wrong password!'
-           # return render(request, 'rango/login.html', context_dict)
+# If we have a User object, the details are correct
+# If None (Python's way of representing the absense of a value),
+# no user with the matching credentials was found
+# if user:
+# Is the account active? It could have been disabled.
+# if user.is_active:
+# If the account is valid and active, we can log the user in.
+# We'll send the user back to the homepage.
+# login(request, user)
+# return HttpResponseRedirect(reverse('index'))
+# else:
+# An inactive account ws used - no logging in!
+# return HttpResponse("Your Rango account is disabled.")
+# else:
+# Bad login details were provided. So we can't log the user in.
+# print("Invalid login details supplied: {0}, {1}".format(username, password))
+# context_dict = {}
+# usr = User.objects.filter(username=username)
+# if username == '' or not usr:
+# context_dict['error'] = 'wronguser'
+# else:
+# if password == '':
+# context_dict['error'] = 'Please enter your password!'
+# else:
+# context_dict['error'] = 'Wrong password!'
+# return render(request, 'rango/login.html', context_dict)
 
-    # The request is not a HTTP POST, so display the login form.
-    # The scenario would most likely be a HTTP GET
-   # else:
-        # No context variables to pass to the template system, hence the
-        # blank dictionary object...
-        #return render(request, 'rango/login.html', {})
+# The request is not a HTTP POST, so display the login form.
+# The scenario would most likely be a HTTP GET
+# else:
+# No context variables to pass to the template system, hence the
+# blank dictionary object...
+# return render(request, 'rango/login.html', {})
 
 
 @login_required
@@ -234,6 +240,7 @@ def get_server_side_cookie(request, cookie, default_val=None):
         val = default_val
     return val
 
+
 # Updated the function definition
 def visitor_cookie_handler(request):
     # Get the number of visits to the site.
@@ -251,25 +258,25 @@ def visitor_cookie_handler(request):
         # Update the last visit cookie now that we have updated the count
         request.session['last_visit'] = str(datetime.now())
     else:
-        
+
         # Set the last visit cookie
         request.session['last_visit'] = last_visit_cookie
 
     # Update/set the visits cookie
     request.session['visits'] = visits
 
+
 def search(request):
     result_list = []
     query = ''
 
-
     if request.method == 'POST':
         query = request.POST['query'].strip()
         if query:
-
             result_list = run_query(query)
     context_dictionary = {'previous_query': query, 'result_list': result_list}
     return render(request, 'rango/search.html', context_dictionary)
+
 
 def track_url(request):
     page_id = None
@@ -283,8 +290,54 @@ def track_url(request):
             page.save()
             return redirect(page.url)
         except:
+            print("No page_id in get string")
             return HttpResponse("Page id {0} not found".format(page_id))
-        print("No page_id in get string")
+
         return redirect(reverse('index'))
 
+@login_required
+def register_profile(request):
+    form = UserProfileForm
 
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
+
+            return redirect('index')
+        else:
+            print(form.errors)
+
+    context_dict = {'form': form}
+
+    return render(request, 'rango/profile_registration.html', context_dict)
+
+@login_required
+def profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return redirect('index')
+
+    userprofile = UserProfile.objects.get_or_create(user=user)[0]
+    form = UserProfileForm(
+        {'website': userprofile.website, 'picture': userprofile.picture}
+    )
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+        if form.is_valid():
+            form.save(commit=True)
+            return redirect('profile', user.username)
+        else:
+            print(form.errors)
+
+    return render(request, 'rango/profile.html',
+                  {'userprofile': userprofile, 'selecteduser': user, 'form': form})
+
+@login_required
+def list_profiles(request):
+    userprofile_list = UserProfile.objects.all()
+
+    return render(request, 'rango/list_profiles.html',{'userprofile_list': userprofile_list})
