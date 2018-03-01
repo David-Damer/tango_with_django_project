@@ -18,6 +18,10 @@ urlpatterns = [
     url(r'^register_profile/$', views.register_profile, name='register_profile'),
     url(r'^profile/(?P<username>[\w\-]+)/$', views.profile, name='profile'),
     url(r'^profiles/$', views.list_profiles, name='list_profiles'),
+    url(r'^like/$', views.like_category, name='like_category'),
+    url(r'^suggest/$', views.suggest_category, name='suggest_category'),
+    url(r'^add/$', views.auto_add_page, name='auto_add_page'),
+
     ]
 
 # test push

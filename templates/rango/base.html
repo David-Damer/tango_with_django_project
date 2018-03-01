@@ -4,12 +4,16 @@
 {%  load rango_template_tags%}
 <html lang="en">
   <head>
+  <style>
+       ul{list-style-type: none;}
+  </style>
     <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" contents="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
+
 
     <title>
         Rango - {% block title %}How to Tango with Django!{% endblock %}
@@ -89,12 +93,22 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
-            {% block sidebar_block %}
-                {% get_category_list category %}
-            {% endblock %}
+                <ul class="=nav nav-pills flex-column">
+                <li class="nav-item">Type to find a category</li>
+                <form>
+                    <li class="nav-item"><input class="search-query form-control" type="text"
+                    name="suggestion" value="" id="suggestion"/>
+                    </li>
+                </form>
+                </ul>
+                <hr>
+                <div id="cats">
+
+                </div>
         </div>
       <div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
          {% block body_block %}{% endblock %}
+
         </div>
       </div>
     </div>
@@ -114,7 +128,9 @@
             src="http://v4-alpha.getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js">
     </script>
   <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
-<script src="{% static "js/rango-jquery.js" %}"></script>
+    <script src="{% static "js/rango-jquery.js" %}"></script>
+  <script src="{% static "js/rango-ajax.js" %}"></script>
+
   </body>
 </html>
 
