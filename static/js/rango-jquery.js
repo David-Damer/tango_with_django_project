@@ -8,5 +8,11 @@ $(document).ready(function(){
         function() {
         $(this).css('color', 'blue');
         });
+    $("#about-btn").addClass('btn btn-primary');
+    $("#about-btn").click( function(event){
+        msgstr = $("#msg").html()
+        msgstr = msgstr +"ooo"
+        $("#msg").html(msgstr)
+    });
     });
 
