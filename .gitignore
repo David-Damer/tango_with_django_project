@@ -4,3 +4,4 @@ decorators.py
 venv
 search.key
 *.pyc
+.coverage

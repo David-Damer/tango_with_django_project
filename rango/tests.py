@@ -1,8 +1,8 @@
-
 from django.test import TestCase
 from rango.models import Category
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles import finders
+
 
 def add_cat(name, views, likes):
     c = Category.objects.get_or_create(name=name)[0]
@@ -10,6 +10,7 @@ def add_cat(name, views, likes):
     c.likes = likes
     c.save()
     return c
+
 
 class CategoryMethodTests(TestCase):
     def test_ensure_views_are_positive(self):
@@ -27,6 +28,7 @@ class CategoryMethodTests(TestCase):
         cat.save()
         self.assertEqual(cat.slug, 'random-category-string')
 
+
 class IndexViewTests(TestCase):
 
     def test_index_view_with_no_categories(self):
@@ -35,12 +37,11 @@ class IndexViewTests(TestCase):
         self.assertContains(response, "There are no categories present.")
         self.assertQuerysetEqual(response.context['categories'], [])
 
-
     def test_index_view_with_categorie(self):
-        add_cat('test',1,1)
-        add_cat('temp',1,1)
-        add_cat('tmp',1,1)
-        add_cat('tmp test temp',1,1)
+        add_cat('test', 1, 1)
+        add_cat('temp', 1, 1)
+        add_cat('tmp', 1, 1)
+        add_cat('tmp test temp', 1, 1)
 
         response = self.client.get(reverse('index'))
         self.assertEqual(response.status_code, 200)
