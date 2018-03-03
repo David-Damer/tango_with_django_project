@@ -1,6 +1,7 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import User
+from datetime import datetime
 
 
 # Create your models here.
@@ -33,6 +34,8 @@ class Page(models.Model):
     title = models.CharField(max_length=Category.max_val)
     url = models.URLField()
     views = models.IntegerField(default=0)
+    last_visit = models.DateTimeField(default=datetime.now())
+    first_visit = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
         return self.title
